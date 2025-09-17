@@ -7,7 +7,7 @@ const productModel = require("./model/product_model");
 const offersModel = require("./model/offers_model");
 
 const app = express();
-const PORT = 4000 || process.env.PORT;
+const PORT = 5000 || process.env.PORT;
 
 //starting route to check health of server
 app.get("/", (req, res)=>{
