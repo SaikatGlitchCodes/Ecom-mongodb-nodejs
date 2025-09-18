@@ -2,9 +2,6 @@ const express = require("express");
 require('dotenv').config();
 require("./database/conn");
 const bodyParser = require('body-parser');
-
-// models 
-
 const offersModel = require("./model/offers_model");
 
 const app = express();
