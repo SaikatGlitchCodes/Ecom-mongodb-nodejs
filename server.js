@@ -4,7 +4,7 @@ require("./database/conn");
 const bodyParser = require('body-parser');
 
 // models 
-const productModel = require("./model/product_model");
+
 const offersModel = require("./model/offers_model");
 
 const app = express();
@@ -16,50 +16,7 @@ app.get("/", (req, res) => {
     res.status(200).json({ message: "Hey! Server is running fine 🚀 " });
 });
 
-app.get("/product", async (req, res) => {
-    const {inStock, maxPrice, sortPrice, sortName} = req.query;
-
-    try {
-        const filter = {price: { $lt : maxPrice} };
-        const sort = {};
-        
-        if(sortPrice){
-            sort.price = 1
-        }
-        if(sortName){
-            sort.name = 1
-        }
-        if(inStock){
-            filter.inStock = true;
-        }
-
-        const response = await productModel.find(filter).sort(sort);
-        res.status(200).json(response);
-        
-    } catch (err) {
-        res.status(401).json({ error: err });
-    }
-});
-
-app.post('/product', async (req, res) => {
-    try {
-        const newProduct = new productModel(req.body);
-        const response = await newProduct.save();
-        res.status(201).json({ message: "Product created successfully", data: response });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-
-app.get('/product/:id', async(req, res)=>{
-    try{
-        const response = await productModel.find({id: req.params.id});
-        res.status(200).json(response);
-    }catch(err){
-        res.status(401).json({error: err});
-    }
-});
-
+app.use('/', require('./controller/product'));
 
 // GET routes /offers : [{name, discount, expiry, terms, description}]
 app.get("/offers", async (req, res) => {
@@ -70,6 +27,14 @@ app.get("/offers", async (req, res) => {
         res.json({ error: err });
     }
 });
+
+// Not found
+app.use((req, res)=>{
+    res.status(404).json({
+    error: 'Not Found',
+    message: 'The requested route does not exist'
+  });
+})
 
 app.listen(PORT, (err) => {
     if (err) {
