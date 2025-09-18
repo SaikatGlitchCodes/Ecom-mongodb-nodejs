@@ -9,60 +9,70 @@ const offersModel = require("./model/offers_model");
 
 const app = express();
 const PORT = 5000 || process.env.PORT;
-
-// global middlewares
-// app.use(()=>{
-//     console.log("Hey called a route!")
-// })
-
 app.use(bodyParser.json());
 
-var user = true;
-// route middleware
-const productMiddleware = (req,res,next)=>{
-    console.log("Product middleware called");
-    if(user){
-        next();
-    }else{
-        res.status(401).json({message: "Unauthorized user"});
-    }
-}
-
-
 //starting route to check health of server
-app.get("/", (req, res)=>{
-    res.send("Hey! Server is running fine 🚀 ");
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Hey! Server is running fine 🚀 " });
 });
 
-app.get("/product", productMiddleware ,async (req, res)=>{
+app.get("/product", async (req, res) => {
+    const {inStock, maxPrice, sortPrice, sortName} = req.query;
+
+    try {
+        const filter = {price: { $lt : maxPrice} };
+        const sort = {};
+        
+        if(sortPrice){
+            sort.price = 1
+        }
+        if(sortName){
+            sort.name = 1
+        }
+        if(inStock){
+            filter.inStock = true;
+        }
+
+        const response = await productModel.find(filter).sort(sort);
+        res.status(200).json(response);
+        
+    } catch (err) {
+        res.status(401).json({ error: err });
+    }
+});
+
+app.post('/product', async (req, res) => {
+    try {
+        const newProduct = new productModel(req.body);
+        const response = await newProduct.save();
+        res.status(201).json({ message: "Product created successfully", data: response });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.get('/product/:id', async(req, res)=>{
     try{
-        const response = await productModel.find();
-        res.json(response);
+        const response = await productModel.find({id: req.params.id});
+        res.status(200).json(response);
     }catch(err){
         res.status(401).json({error: err});
     }
 });
 
-app.post('/product', async (req, res)=>{
-    const data =req.body;
-    const newProduct =new productModel(data);
-    const response = await newProduct.save();
-    console.log('Response: ', response);
-    res.send("Product created successfully");
-});
 
 // GET routes /offers : [{name, discount, expiry, terms, description}]
-app.get("/offers", async (req, res)=>{
-    try{
+app.get("/offers", async (req, res) => {
+    try {
         const response = await offersModel.find();
         res.json(response);
-    }catch(err){
-        res.json({error: err});
+    } catch (err) {
+        res.json({ error: err });
     }
 });
 
-app.listen(PORT, (err)=>{
-    if(err){
+app.listen(PORT, (err) => {
+    if (err) {
         console.log("Server failed to start", err);
         return
     }
