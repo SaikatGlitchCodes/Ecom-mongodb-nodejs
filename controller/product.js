@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const productModel = require("../model/product_model");
-
+console.log("products")
 router.get("/product", async (req, res) => {
     const {inStock, maxPrice, sortPrice, sortName} = req.query;
 
