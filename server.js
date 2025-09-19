@@ -14,6 +14,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/', require('./controller/product'));
+app.use('/', require('./controller/user'));
 
 // GET routes /offers : [{name, discount, expiry, terms, description}]
 app.get("/offers", async (req, res) => {
