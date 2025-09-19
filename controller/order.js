@@ -1,12 +1,8 @@
 const express=require("express");
 const router=express.Router();
 const app = express();
-
 const Ordermodel=require('../model/orders_model');
 
-
-
-console.log("Orders page")
 router.get('/orders',async (req,res)=>{
     try{
         const response=await Ordermodel.find()

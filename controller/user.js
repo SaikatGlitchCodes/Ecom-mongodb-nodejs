@@ -1,55 +1,55 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../model/user_model");
+const bcrypt = require("bcrypt");
 
 router.get('/user', async (req, res) => {
-    //const {sortname} = req.query;
-
-    try {
-        // //const profile = {};
-        // const sortobj = {};
-        //  if(sortname){
-        //     sortobj.name = 1
-        // }
-        // else{
-        //     sortobj.name = 1
-        // }
-      
-               
+    try {  
         const response = await userModel.find();
-        res.status(200).json(response);
+        res.status(200).json({data: response});
         
     } catch (err) {
         res.status(401).json({ error: err });
     }
 });
 
-
 router.get('/user/:id', async (req, res) => {
     try {
-        const response = await userModel.findOne({id: req.params.id});//find returns array, so you can use length property
-        res.status(200).json(response);
-        if(response.length === 0)
-        {
-           return  res.status(400).json({message:"User with this ID doesnt exist"});
+        const response = await userModel.findOne({_id: req.params.id});
+        if(!response){
+            return res.status(404).json({message: "User not found", data: response})
         }
+        res.status(200).json({message: "User found", data: response});
     }catch(err)
     {
-        res.catch(404).json({message:"this route doesnt exist"});
+        res.status(404).json({message:"this route doesnt exist", error: err});
     }
-    
 });
 
-router.post('/user', async (req, res) => {
+
+router.put('/user/:id', async (req, res) => {
     try {
-        const newuser = new userModel(req.body);
-        const response = await newuser.save();
-        res.status(201).json({ message: "User created successfully", data: response });
+        const response = await userModel.findOneAndUpdate({_id: req.params.id}, req.body, {new: false});
+        if(!response){
+            return res.status(404).json({message: "User not found", data: response})
+        }
+        res.status(200).json({message: "User updated successfully", data: response});
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({message:"Couldn't update user", error: error.message });
     }
 });
 
+router.delete('/user/:id', async (req, res) => {
+    try {
+        const response = await userModel.deleteOne({_id: req.params.id});
+        if(response.deletedCount === 0){
+            return res.status(404).json({message: "User not found", data: response})
+        }
+        res.status(200).json({message: "User deleted successfully", data: response});
+    } catch (error) {
+        res.status(400).json({message:"Couldn't delete user", error: error.message });
+    }
+});
 
 module.exports = router;
 

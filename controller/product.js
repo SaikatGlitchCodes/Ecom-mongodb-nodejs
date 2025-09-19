@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const productModel = require("../model/product_model");
-console.log("products")
+const authenticationMiddleware = require("../middleware/auth");
+
 router.get("/product", async (req, res) => {
     const {inStock, maxPrice, sortPrice, sortName} = req.query;
 
@@ -29,7 +30,7 @@ router.get("/product", async (req, res) => {
     }
 });
 
-router.post('/product', async (req, res) => {
+router.post('/product', authenticationMiddleware,async (req, res) => {
     try {
         const newProduct = new productModel(req.body);
         const response = await newProduct.save();
@@ -40,7 +41,6 @@ router.post('/product', async (req, res) => {
 });
 
 router.get('/product/:id', async(req, res)=>{
-    console.log("M1")
     try{
         const response = await productModel.findOne({id: req.params.id});
         res.status(200).json(response);
@@ -49,9 +49,7 @@ router.get('/product/:id', async(req, res)=>{
     }
 });
 
-router.patch('/product/:id', async(req, res)=>{
-    console.log('Params :',req.params);
-    console.log('Body :', req.body);
+router.patch('/product/:id', authenticationMiddleware,async(req, res)=>{
     try{
         const response = await productModel.updateOne({id: req.params.id}, {$set: req.body});
         res.status(200).json({message: "Updated the product", response})
@@ -60,7 +58,7 @@ router.patch('/product/:id', async(req, res)=>{
     }
 });
 
-router.delete('/product/:id', async(req, res)=>{
+router.delete('/product/:id', authenticationMiddleware, async(req, res)=>{
     try{
         const response = await productModel.deleteOne({id: req.params.id});
         res.status(200).json({message: "Deleted the product", response})
