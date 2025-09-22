@@ -3,7 +3,7 @@ const router = express.Router();
 const productModel = require("../model/product_model");
 const authenticationMiddleware = require("../middleware/auth");
 
-router.get("/product", async (req, res) => {
+router.get("/product", authenticationMiddleware, async (req, res) => {
     const {inStock, maxPrice, sortPrice, sortName} = req.query;
 
     try {
