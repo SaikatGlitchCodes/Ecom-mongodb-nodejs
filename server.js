@@ -2,10 +2,14 @@ const express = require("express");
 require('dotenv').config();
 require("./database/conn");
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const app = express();
 const PORT = 5000 || process.env.PORT;
+
 app.use(bodyParser.json());
+app.use(cors());
+
 
 //starting route to check health of server
 app.get("/", (req, res) => {
@@ -15,6 +19,7 @@ app.get("/", (req, res) => {
 app.use('/', require('./controller/auth'));
 app.use('/', require('./controller/product'));
 app.use('/', require('./controller/user'));
+app.use('/', require('./controller/offer'));
 
 // Not found
 app.use((req, res)=>{
